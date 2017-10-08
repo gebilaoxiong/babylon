@@ -82,12 +82,14 @@ export default (superClass: Class<Parser>): Class<Parser> =>
             if (this.state.pos === this.state.start) {
               if (ch === 60 && this.state.exprAllowed) {
                 ++this.state.pos;
-                return this.finishToken(tt.jsxTagStart);
+                this.finishToken(tt.jsxTagStart);
+                return;
               }
               return this.getTokenFromCode(ch);
             }
             out += this.input.slice(chunkStart, this.state.pos);
-            return this.finishToken(tt.jsxText, out);
+            this.finishToken(tt.jsxText, out);
+            return;
 
           case 38: // "&"
             out += this.input.slice(chunkStart, this.state.pos);
@@ -147,7 +149,7 @@ export default (superClass: Class<Parser>): Class<Parser> =>
         }
       }
       out += this.input.slice(chunkStart, this.state.pos++);
-      return this.finishToken(tt.string, out);
+      this.finishToken(tt.string, out);
     }
 
     jsxReadEntity(): string {
@@ -197,10 +199,8 @@ export default (superClass: Class<Parser>): Class<Parser> =>
       do {
         ch = this.input.charCodeAt(++this.state.pos);
       } while (isIdentifierChar(ch) || ch === 45); // "-"
-      return this.finishToken(
-        tt.jsxName,
-        this.input.slice(start, this.state.pos),
-      );
+
+      this.finishToken(tt.jsxName, this.input.slice(start, this.state.pos));
     }
 
     // Parse next token as JSX identifier
@@ -474,7 +474,8 @@ export default (superClass: Class<Parser>): Class<Parser> =>
 
         if (code === 62) {
           ++this.state.pos;
-          return this.finishToken(tt.jsxTagEnd);
+          this.finishToken(tt.jsxTagEnd);
+          return;
         }
 
         if ((code === 34 || code === 39) && context === tc.j_oTag) {
@@ -484,7 +485,8 @@ export default (superClass: Class<Parser>): Class<Parser> =>
 
       if (code === 60 && this.state.exprAllowed) {
         ++this.state.pos;
-        return this.finishToken(tt.jsxTagStart);
+        this.finishToken(tt.jsxTagStart);
+        return;
       }
 
       return super.readToken(code);
